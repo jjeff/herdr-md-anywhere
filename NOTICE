@@ -1,0 +1,11 @@
+herdr-md-anywhere, a Markdown side panel for the Herdr app
+Copyright 2026 jjeff
+
+doc.js and blocks.js (the Markdown renderer and in-place editor) and the
+icons in icons/ other than markdown.svg are copied unchanged from the
+markdown-panel mod in Kanso by jlopezlira
+(https://github.com/jlopezlira/herdr-kanso, Apache License 2.0).
+Kanso's own NOTICE credits the Herdr app's shipped mods
+(https://github.com/herdrdev/herdr-app, Apache License 2.0) and
+herdr-md-review by Johannes Hund (https://github.com/h0ru5/herdr-md-review,
+Apache License 2.0).
