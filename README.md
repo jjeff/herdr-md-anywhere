@@ -4,7 +4,7 @@ A side panel for the [Herdr](https://github.com/herdrdev/herdr-app) app that
 lists the Markdown files the focused terminal has mentioned and shows them
 formatted — on **any machine Herdr is connected to**, with nothing mounted.
 
-Coding agents print paths that are local to the machine they run on. When that
+Coding agents print paths that are local to the machine they run on. When that 
 machine is a remote one, those paths mean nothing to your desktop. This panel
 reads the terminal's output and the files themselves through herdr-core's
 existing connection, so a path Claude printed on a remote Mac opens right
@@ -17,9 +17,14 @@ where you are.
   terminal's folder, `file://` links and `path.md:42` references — and lists
   them **newest first**.
 - Keeps only the paths that exist on the terminal's machine.
+- Lists the terminal folder's own Markdown below that ("In this folder"):
+  what git tracks, else a search three levels deep that skips hidden folders
+  and `node_modules`.
 - Shows a file formatted. Local files can be edited in place (double-click a
   block); saves never overwrite a change an agent made meanwhile.
 - Refreshes when the terminal's agent starts or finishes a turn, and on ↻.
+  An open file reloads as it changes (local) or every 3 seconds (other
+  machines).
 - Follows the focused terminal; clicking into the panel keeps the last one.
 
 ## Install
@@ -56,12 +61,14 @@ and `layout.show` (`{"id":"panel"}`) commands.
 
 - **Other machines' files are read-only.** Herdr's `writeTextFile` only writes
   on this machine.
-- **Other machines' files don't reload live** (`watchFolder` is local); use ↻.
-  Local files reload as they change.
+- `hc read` returns only what is on screen for full-screen programs such as
+  Claude Code, so paths that have scrolled away drop out of "From this
+  terminal".
 - A **bare filename** the agent mentioned that isn't in the terminal's folder
   is dropped; there is no search of subfolders.
 - Plain shells report no agent status, so they refresh only on ↻.
-- Path checks use `sh`; on a Windows machine the paths are listed unchecked.
+- Path checks use `sh`; on a Windows machine the paths are listed unchecked
+  and there is no "In this folder" list.
 
 ## Test
 
