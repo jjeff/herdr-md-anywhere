@@ -7,7 +7,7 @@
 // doc.js and blocks.js are copies of markdown-panel's (from herdr-kanso).
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, focused, terminals, hc, exec, watchFolder, theme, appHome } from "herdr";
+import { spaces, focused, terminals, hc, exec, watchFolder, theme } from "herdr";
 import { MarkdownDoc, tildePath } from "./doc.js";
 import { mentions } from "./mentions.js";
 
