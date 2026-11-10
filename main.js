@@ -14,6 +14,7 @@ import { mentions } from "./mentions.js";
 const ICONS = "mods/md-anywhere/icons";
 const HISTORY = 2000;
 const REMOTE_READ_MS = 3000;
+const FOLLOW_MS = 1500;
 const FOLDER_MAX = 40;
 const folderOf = (path) => path.replace(/\/[^/]*$/, "") || "/";
 const nameOf = (path) => path.split("/").pop();
@@ -57,6 +58,23 @@ export default class MarkdownAnywhere extends View {
   init(_props, cx) {
     this.at = null; this.files = null; this.folder = []; this.doc = null; this.error = null; this.scans = 0;
     this.handle = cx.focus_handle();
+    // Herdr doesn't redraw a mod when an agent's status changes, so look on a
+    // timer too. Only in-memory reads here; the terminal is read on a change.
+    this.ticker = cx.timer.every(FOLLOW_MS, (cx) => this.follow(cx));
+  }
+
+  // Follow the focused terminal (clicking into this panel keeps the last one),
+  // and read it again when its agent starts or finishes a turn.
+  follow(cx) {
+    const now = target();
+    if (now && now.address !== this.at?.address) {
+      this.at = now; this.beat = this.heartbeat();
+      if (!this.doc) this.scan(cx);
+      else cx.notify();
+    } else if (this.at) {
+      const beat = this.heartbeat();
+      if (beat !== this.beat) { this.beat = beat; if (!this.doc) this.scan(cx, true); }
+    }
   }
 
   // Changes when the terminal's agent changes status or starts a turn.
@@ -130,16 +148,7 @@ export default class MarkdownAnywhere extends View {
   }
 
   render(cx) {
-    // Follow the focused terminal; clicking into this panel keeps the last one.
-    const now = target();
-    if (now && now.address !== this.at?.address) {
-      this.at = now; this.beat = this.heartbeat();
-      if (!this.doc) this.scan(cx);
-    } else if (this.at) {
-      // The agent started or finished a turn: what it said may name new files.
-      const beat = this.heartbeat();
-      if (beat !== this.beat) { this.beat = beat; if (!this.doc) this.scan(cx, true); }
-    }
+    this.follow(cx);
     const t = theme(), doc = this.doc;
     const button = (id, icon, tip, action) => div().id(id).p(4).rounded(6).cursor_pointer().text_color(t.muted).tooltip(tip)
       .hover((s) => s.bg(t.hover).text_color(t.foreground)).on_click((_e, cx) => action(cx))
@@ -169,7 +178,7 @@ export default class MarkdownAnywhere extends View {
       .child(div().truncate().child(nameOf(f)))
       .child(div().truncate().text_size(11.5).text_color(t.dim).child(tildePath(folderOf(f), null)));
     return v_flex().id("mda-files").flex_1().min_h(0).overflow_y_scrollbar().p(6)
-      .child(heading("From this terminal"))
+      .child(heading("Mentioned"))
       .when(!this.files.length, (el) => el.child(div().px(10).py(4).text_size(12.5).text_color(t.dim).child("No Markdown mentioned yet.")))
       .children(this.files.map(row("t")))
       .when(this.folder.length > 0, (el) => el.child(heading("In this folder")).children(this.folder.map(row("f"))));

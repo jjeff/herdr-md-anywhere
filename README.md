@@ -17,7 +17,7 @@ where you are.
   terminal's folder, `file://` links and `path.md:42` references — and lists
   them **newest first**.
 - Keeps only the paths that exist on the terminal's machine.
-- Lists the terminal folder's own Markdown below that ("In this folder"):
+- Lists the terminal folder's own Markdown below the mentioned files ("In this folder"):
   what git tracks, else a search three levels deep that skips hidden folders
   and `node_modules`.
 - Shows a file formatted. Local files can be edited in place (double-click a
@@ -62,8 +62,8 @@ and `layout.show` (`{"id":"panel"}`) commands.
 - **Other machines' files are read-only.** Herdr's `writeTextFile` only writes
   on this machine.
 - `hc read` returns only what is on screen for full-screen programs such as
-  Claude Code, so paths that have scrolled away drop out of "From this
-  terminal".
+  Claude Code, so paths that have scrolled away drop out of
+  "Mentioned".
 - A **bare filename** the agent mentioned that isn't in the terminal's folder
   is dropped; there is no search of subfolders.
 - Plain shells report no agent status, so they refresh only on ↻.
