@@ -7,7 +7,7 @@
 // doc.js and blocks.js are copies of markdown-panel's (from herdr-kanso).
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, focused, terminals, hc, exec, watchFolder, theme } from "herdr";
+import { spaces, focused, terminals, hc, exec, watchFolder, theme, appHome } from "herdr";
 import { MarkdownDoc, tildePath } from "./doc.js";
 import { mentions } from "./mentions.js";
 
@@ -15,6 +15,7 @@ const ICONS = "mods/md-anywhere/icons";
 const HISTORY = 2000;
 const REMOTE_READ_MS = 3000;
 const FOLLOW_MS = 1500;
+const SETTLE_MS = 2500;
 const FOLDER_MAX = 40;
 const folderOf = (path) => path.replace(/\/[^/]*$/, "") || "/";
 const nameOf = (path) => path.split("/").pop();
@@ -73,7 +74,13 @@ export default class MarkdownAnywhere extends View {
       else cx.notify();
     } else if (this.at) {
       const beat = this.heartbeat();
-      if (beat !== this.beat) { this.beat = beat; if (!this.doc) this.scan(cx, true); }
+      if (beat !== this.beat) {
+        this.beat = beat;
+        if (this.doc) return;
+        this.scan(cx, true);
+        // The agent can report the change before it draws its last words.
+        cx.timer.after(SETTLE_MS, (cx) => { if (!this.doc) this.scan(cx, true); });
+      }
     }
   }
 
