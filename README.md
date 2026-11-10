@@ -25,10 +25,12 @@ where you are.
 ## Install
 
 ```sh
-git clone https://github.com/jjeff/herdr-md-anywhere ~/Code/herdr-md-anywhere
-ln -s ~/Code/herdr-md-anywhere ~/.config/herdr-app/mods/md-anywhere
+git clone https://github.com/jjeff/herdr-md-anywhere ~/.config/herdr-app/mods/md-anywhere
 herdr-app check ~/.config/herdr-app/mods/md-anywhere
 ```
+
+Clone it into the mods folder itself. Herdr does not load a mod's icons
+through a symlink that points outside `~/.config/herdr-app`.
 
 The panel goes in your layout's side-panel stack, next to Files and Changes.
 Herdr's shipped layouts are read-only, so clone one first
