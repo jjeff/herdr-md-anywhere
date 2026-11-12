@@ -12,7 +12,20 @@ import { MarkdownDoc, tildePath } from "./doc.js";
 import { mentions } from "./mentions.js";
 
 const ICONS = "mods/md-anywhere/icons";
-const HISTORY = 2000;
+// hc read falls back to the bare screen when a full-screen program (Claude
+// Code) has less history than asked for, so step down until it stitches.
+const DEPTHS = [2000, 1000, 500, 200, 100, 50];
+async function readTerminal(address) {
+  let last = "";
+  for (const n of DEPTHS) {
+    const r = await hc(["read", address, "--json", "--lines", String(n)]);
+    if (r.code !== 0) throw new Error(r.stderr.trim() || "hc read failed");
+    const d = JSON.parse(r.stdout);
+    if (d.complete) return d.text;
+    last ||= d.text;
+  }
+  return last;
+}
 const REMOTE_READ_MS = 3000;
 const FOLLOW_MS = 1500;
 const SETTLE_MS = 2500;
@@ -99,9 +112,10 @@ export default class MarkdownAnywhere extends View {
     if (!keep) { this.files = null; this.folder = []; this.error = null; }
     cx.spawn(async (cx) => {
       try {
-        const r = await hc(["read", at.address, "--lines", String(HISTORY)]);
-        if (r.code !== 0) throw new Error(r.stderr.trim() || "hc read failed");
-        const found = mentions(r.stdout);
+        // Remember what each terminal mentioned, so paths that scroll away stay listed.
+        const seen = (this.seen ??= new Map()).get(at.address) ?? [];
+        const found = [...new Set([...mentions(await readTerminal(at.address)), ...seen])].slice(0, 60);
+        this.seen.set(at.address, found);
         let files = found, folder = [];
         // ponytail: sh-only; a Windows machine shows the paths unchecked and no folder list.
         const ok = await exec("sh", ["-c", RESOLVE, "sh", at.cwd, ...found], { on: at.on }).catch(() => null);

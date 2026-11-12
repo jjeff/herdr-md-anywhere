@@ -61,9 +61,10 @@ and `layout.show` (`{"id":"panel"}`) commands.
 
 - **Other machines' files are read-only.** Herdr's `writeTextFile` only writes
   on this machine.
-- `hc read` returns only what is on screen for full-screen programs such as
-  Claude Code, so paths that have scrolled away drop out of
-  "Mentioned".
+- For full-screen programs such as Claude Code, `hc read` returns only the
+  screen when asked for more history than the terminal has, so the panel
+  steps down from 2000 lines until a read is complete. Paths a terminal has
+  mentioned stay listed until the app restarts.
 - A **bare filename** the agent mentioned that isn't in the terminal's folder
   is dropped; there is no search of subfolders.
 - Plain shells report no agent status, so they refresh only on ↻.
